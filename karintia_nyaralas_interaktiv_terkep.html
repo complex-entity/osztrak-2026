@@ -5,92 +5,45 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Karintia családi térkép</title>
 
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCt2VxrOb9zLBKkBSZu4SFAnn_0XoYDT60&callback=initMap" async defer></script>
+
 <style>
-/* Alap elrendezés */
-html, body {
-  height: 100%;
-  margin: 0;
-  display: flex;
-  font-family: 'Segoe UI', Arial, sans-serif;
-  overflow: hidden;
-}
+    html, body { height: 100%; margin: 0; display: flex; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
 
-/* Oldalsáv (Sidebar) */
-#sidebar {
-  width: 320px;
-  height: 100%;
-  overflow-y: auto;
-  background: white;
-  border-right: 1px solid #ddd;
-  transition: transform 0.3s ease;
-  z-index: 1000;
-  position: relative;
-}
+    /* Hamburger gomb mobilon */
+    #menu-toggle {
+        display: none; position: fixed; top: 15px; left: 15px; z-index: 2000;
+        background: #007bff; color: white; border: none; padding: 12px;
+        border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; width: 50px; height: 50px;
+    }
 
-/* Mobil nézet: elrejtjük az oldalsávot */
-@media (max-width: 768px) {
-  #sidebar {
-    position: absolute;
-    left: 0;
-    top: 0;
-    transform: translateX(-100%);
-    width: 280px;
-  }
-  #sidebar.open {
-    transform: translateX(0);
-  }
-}
+    /* Bal oldali lista */
+    #sidebar {
+        width: 350px; height: 100%; background: white; border-right: 1px solid #ddd;
+        display: flex; flex-direction: column; transition: 0.3s ease; z-index: 1500;
+    }
 
-#sidebar h2 {
-  padding: 20px;
-  margin: 0;
-  background: #2c3e50;
-  color: white;
-  font-size: 1.1rem;
-}
+    #sidebar h2 { padding: 20px; margin: 0; background: #2c3e50; color: white; font-size: 1.2rem; }
 
-/* Hamburger Menü Gomb */
-#menu-toggle {
-  display: none;
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 1100;
-  background: white;
-  border: none;
-  padding: 10px;
-  border-radius: 4px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  cursor: pointer;
-  font-size: 20px;
-}
+    .poi-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex-grow: 1; }
+    .poi-item { padding: 15px 20px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s; }
+    .poi-item:hover { background: #f8f9fa; }
+    .poi-item h3 { margin: 0 0 5px 0; font-size: 1rem; color: #007bff; }
+    .poi-item p { margin: 0; font-size: 0.85rem; color: #666; }
 
-@media (max-width: 768px) {
-  #menu-toggle { display: block; }
-}
+    /* Térkép */
+    #map { flex-grow: 1; height: 100%; }
 
-/* Lista stílusok */
-.poi-list { list-style: none; padding: 0; margin: 0; }
-.poi-item {
-  padding: 15px 20px;
-  border-bottom: 1px solid #eee;
-  cursor: pointer;
-}
-.poi-item:hover { background: #f0f7ff; }
-.poi-item h3 { margin: 0 0 5px 0; font-size: 0.95rem; color: #007bff; }
-.poi-item p { margin: 0; font-size: 0.8rem; color: #666; }
+    /* Mobil beállítások */
+    @media (max-width: 768px) {
+        #menu-toggle { display: block; }
+        #sidebar {
+            position: fixed; left: -350px; width: 300px;
+        }
+        #sidebar.open { left: 0; }
+    }
 
-/* Térkép */
-#map {
-  flex-grow: 1;
-  height: 100%;
-}
-
-.legend {
-  background: white; padding: 10px; margin: 10px;
-  font-size: 13px; border-radius: 4px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-}
+    .legend { background: white; padding: 10px; margin: 10px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-size: 13px; }
 </style>
 </head>
 
@@ -99,14 +52,13 @@ html, body {
 <button id="menu-toggle">☰</button>
 
 <div id="sidebar">
-    <h2>📍 Látnivalók</h2>
+    <h2>🇦🇹 Karintia 2026</h2>
     <ul class="poi-list" id="poi-list"></ul>
 </div>
 
 <div id="map"></div>
 
 <script>
-// A POI adatok
 const places = [
     { name: "Szállás (Airbnb)", pos: {lat: 46.6055, lng: 14.5665}, desc: "Airbnb Obernarrach", color: "red" },
     { name: "Turnersee", pos: {lat: 46.606, lng: 14.575}, desc: "Meleg alpesi fürdőtó", color: "blue" },
@@ -120,9 +72,9 @@ const places = [
     { name: "Sablatnigmoor", pos: {lat: 46.602, lng: 14.56}, desc: "Természetvédelmi terület", color: "green" },
     { name: "Burg Hochosterwitz", pos: {lat: 46.761, lng: 14.429}, desc: "Ikonikus középkori vár", color: "purple" },
     { name: "Pyramidenkogel Tower", pos: {lat: 46.593, lng: 14.143}, desc: "Európa legmagasabb fa kilátója", color: "purple" },
-    { name: "SPAR St Kanzian", pos: {lat: 46.6078, lng: 14.5856}, desc: "Szupermarket", color: "lightblue" },
-    { name: "BILLA St Kanzian", pos: {lat: 46.6069, lng: 14.5868}, desc: "Szupermarket", color: "lightblue" },
-    { name: "HOFER Völkermarkt", pos: {lat: 46.6625, lng: 14.634}, desc: "Diszkont bolt", color: "lightblue" },
+    { name: "SPAR St Kanzian", pos: {lat: 46.6078, lng: 14.5856}, desc: "Szupermarket", color: "ltblue" },
+    { name: "BILLA St Kanzian", pos: {lat: 46.6069, lng: 14.5868}, desc: "Szupermarket", color: "ltblue" },
+    { name: "HOFER Völkermarkt", pos: {lat: 46.6625, lng: 14.634}, desc: "Diszkont bolt", color: "ltblue" },
     { name: "Dego Restaurant", pos: {lat: 46.6087, lng: 14.5875}, desc: "Tóparti étterem", color: "black" },
     { name: "Minimundus", pos: {lat: 46.6247, lng: 14.2653}, desc: "Miniatűr park 150+ híres épülettel.", color: "orange" },
     { name: "Reptilienzoo Happ", pos: {lat: 46.6238, lng: 14.2643}, desc: "Hüllő zoo kígyókkal, gyíkokkal.", color: "orange" },
@@ -130,53 +82,62 @@ const places = [
     { name: "Wildensteiner Wasserfall", pos: {lat: 46.509, lng: 14.553}, desc: "Karintia egyik legmagasabb vízesése.", color: "green" }
 ];
 
+let map;
+let infoWindow;
+
 function initMap() {
-    const map = new google.maps.Map(document.getElementById("map"), {
+    map = new google.maps.Map(document.getElementById("map"), {
         zoom: 10,
         center: {lat: 46.6055, lng: 14.5665},
         mapTypeControl: false,
-        fullscreenControl: false
+        streetViewControl: false
     });
 
-    const infoWindow = new google.maps.InfoWindow();
+    infoWindow = new google.maps.InfoWindow();
     const poiList = document.getElementById('poi-list');
     const sidebar = document.getElementById('sidebar');
 
     places.forEach(place => {
-        const color = place.color === 'lightblue' ? 'ltblue' : place.color;
+        // Marker létrehozása
         const marker = new google.maps.Marker({
             position: place.pos,
             map: map,
-            icon: `https://maps.google.com/mapfiles/ms/icons/${color}-dot.png`
+            icon: "http://maps.google.com/mapfiles/ms/icons/" + place.color + "-dot.png"
         });
 
+        // Lista elem létrehozása
         const li = document.createElement('li');
         li.className = 'poi-item';
         li.innerHTML = `<h3>${place.name}</h3><p>${place.desc}</p>`;
         
-        const action = () => {
+        const clickHandler = () => {
             map.panTo(place.pos);
-            map.setZoom(13);
+            map.setZoom(14);
             infoWindow.setContent(`<strong>${place.name}</strong><br>${place.desc}`);
             infoWindow.open(map, marker);
+            
             // Mobilon csukja be a menüt kattintás után
-            if (window.innerWidth <= 768) sidebar.classList.remove('open');
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+            }
         };
 
-        li.addEventListener('click', action);
-        marker.addListener('click', action);
+        li.addEventListener('click', clickHandler);
+        marker.addListener('click', clickHandler);
         poiList.appendChild(li);
     });
 
-    // Hamburger gomb működtetése
-    document.getElementById('menu-toggle').addEventListener('click', () => {
+    // Hamburger gomb esemény
+    document.getElementById('menu-toggle').addEventListener('click', (e) => {
+        e.stopPropagation();
         sidebar.classList.toggle('open');
     });
-}
-</script>
 
-<script async defer
-src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCt2VxrOb9zLBKkBSZu4SFAnn_0XoYDT60&callback=initMap">
+    // Kattintás a térképre bezárja a menüt mobilon
+    map.addListener('click', () => {
+        sidebar.classList.remove('open');
+    });
+}
 </script>
 
 </body>
