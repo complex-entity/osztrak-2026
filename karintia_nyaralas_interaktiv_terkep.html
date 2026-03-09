@@ -2,39 +2,38 @@
 <html lang="hu">
 <head>
 <meta charset="utf-8">
-<title>Karintia családi térkép - Interaktív</title>
+<title>Karintia családi térkép - Fix</title>
 
 <style>
-/* Teljes képernyős elrendezés flexbox-szal */
+/* Teljes képernyős elrendezés */
 html, body {
   height: 100%;
   margin: 0;
   display: flex;
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Arial, sans-serif;
 }
 
-/* Bal oldali lista stílusa */
+/* Bal oldali lista */
 #sidebar {
   width: 320px;
   height: 100%;
   overflow-y: auto;
-  background: #f8f9fa;
-  border-right: 1px solid #ccc;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-  z-index: 10;
+  background: #ffffff;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
 }
 
 #sidebar h2 {
-  padding: 15px;
+  padding: 20px;
   margin: 0;
-  background: #007bff;
+  background: #2c3e50;
   color: white;
-  font-size: 1.2rem;
-  position: sticky;
-  top: 0;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-/* Lista elemek stílusa */
 .poi-list {
   list-style: none;
   padding: 0;
@@ -42,41 +41,44 @@ html, body {
 }
 
 .poi-item {
-  padding: 12px 15px;
+  padding: 15px 20px;
   border-bottom: 1px solid #eee;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .poi-item:hover {
-  background: #e9ecef;
+  background: #f0f7ff;
 }
 
 .poi-item h3 {
   margin: 0 0 5px 0;
   font-size: 0.95rem;
-  color: #333;
+  color: #007bff;
 }
 
 .poi-item p {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #666;
+  line-height: 1.4;
 }
 
-/* Térkép konténer */
+/* Térkép */
 #map {
   flex-grow: 1;
   height: 100%;
+  background-color: #e5e3df; /* Tartalék szín, amíg tölt a térkép */
 }
 
 .legend {
   background: white;
-  padding: 10px;
+  padding: 12px;
   margin: 10px;
-  font-size: 14px;
-  border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  font-size: 13px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  line-height: 1.6;
 }
 </style>
 </head>
@@ -84,22 +86,22 @@ html, body {
 <body>
 
 <div id="sidebar">
-    <h2>Látnivalók</h2>
-    <ul class="poi-list" id="poi-list">
-        </ul>
+    <h2>📍 Látnivalók</h2>
+    <ul class="poi-list" id="poi-list"></ul>
 </div>
 
 <div id="map"></div>
 
 <script>
 function initMap() {
-    const szallas = {lat: 46.6055, lng: 14.5665};
+    const szallasPos = {lat: 46.6055, lng: 14.5665};
 
     const map = new google.maps.Map(document.getElementById("map"), {
         zoom: 10,
-        center: szallas,
+        center: szallasPos,
         mapTypeControl: true,
-        streetViewControl: false
+        streetViewControl: false,
+        fullscreenControl: false
     });
 
     const places = [
@@ -129,38 +131,39 @@ function initMap() {
     const infoWindow = new google.maps.InfoWindow();
 
     places.forEach(place => {
-        // Marker színe (Google alapértelmezett markerek használata egyszerűbb URL-lel)
+        // Stabilabb marker ikon URL (Google Maps alapértelmezett színei)
+        let markerColor = place.color;
+        if(markerColor === 'lightblue') markerColor = 'ltblue'; // API korrekció
+
         const marker = new google.maps.Marker({
             position: place.pos,
             map: map,
             title: place.name,
-            icon: `http://maps.google.com/mapfiles/ms/icons/${place.color}-dot.png`
+            icon: `https://maps.google.com/mapfiles/ms/icons/${markerColor}-dot.png`
         });
 
-        // Lista elem létrehozása
+        // Lista elem
         const li = document.createElement('li');
         li.className = 'poi-item';
         li.innerHTML = `<h3>${place.name}</h3><p>${place.desc}</p>`;
         
-        // Kattintás funkció (Marker és Lista közös)
         const selectPlace = () => {
             map.panTo(place.pos);
             map.setZoom(14);
-            infoWindow.setContent(`<div style="color:#333"><strong>${place.name}</strong><br>${place.desc}</div>`);
+            infoWindow.setContent(`<div style="padding:5px"><strong>${place.name}</strong><br>${place.desc}</div>`);
             infoWindow.open(map, marker);
         };
 
         li.addEventListener('click', selectPlace);
         marker.addListener('click', selectPlace);
-
         poiListElement.appendChild(li);
     });
 
-    // Jelmagyarázat hozzáadása
+    // Jelmagyarázat
     const legend = document.createElement("div");
     legend.className = "legend";
     legend.innerHTML = `
-        <b>Jelmagyarázat</b><br>
+        <strong>Jelmagyarázat</strong><br>
         🔴 Szállás<br>
         🔵 Tavak / strandok<br>
         🟢 Túrák / természet<br>
@@ -170,6 +173,11 @@ function initMap() {
         ⚫ Étterem
     `;
     map.controls[google.maps.ControlPosition.RIGHT_TOP].push(legend);
+}
+
+// Hibaellenőrzés, ha nem töltene be a térkép
+function gm_authFailure() { 
+    alert("Google Maps hiba: Valószínűleg a Maps API kulcsod érvénytelen vagy korlátozva van.");
 }
 </script>
 
