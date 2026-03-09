@@ -1,917 +1,228 @@
 <!DOCTYPE html>
 <html>
 <head>
-    
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
-    
-            <meta name="viewport" content="width=device-width,
-                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-            <style>
-                #map_12b109c2e0ab217f3a0997622f11be5f {
-                    position: relative;
-                    width: 100.0%;
-                    height: 100.0%;
-                    left: 0.0%;
-                    top: 0.0%;
-                }
-                .leaflet-container { font-size: 1rem; }
-            </style>
+<meta charset="utf-8">
+<title>Karintia családi térkép</title>
 
-            <style>html, body {
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-            }
-            </style>
+<style>
+html, body {
+  height:100%;
+  margin:0;
+}
 
-            <style>#map {
-                position:absolute;
-                top:0;
-                bottom:0;
-                right:0;
-                left:0;
-                }
-            </style>
+#map{
+  height:100%;
+}
 
-            <script>
-                L_NO_TOUCH = false;
-                L_DISABLE_3D = false;
-            </script>
+.legend{
+  background:white;
+  padding:10px;
+  margin:10px;
+  font-family:Arial;
+  font-size:14px;
+  border-radius:6px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.3);
+}
 
-        
+.legend div{
+  margin-bottom:4px;
+}
+</style>
 </head>
+
 <body>
-    
-    
-            <div class="folium-map" id="map_12b109c2e0ab217f3a0997622f11be5f" ></div>
-        
-</body>
+
+<div id="map"></div>
+
 <script>
-    
-    
-            var map_12b109c2e0ab217f3a0997622f11be5f = L.map(
-                "map_12b109c2e0ab217f3a0997622f11be5f",
-                {
-                    center: [46.6055, 14.5665],
-                    crs: L.CRS.EPSG3857,
-                    ...{
-  "zoom": 10,
-  "zoomControl": true,
-  "preferCanvas": false,
-}
 
-                }
-            );
+function initMap(){
 
-            
+const szallas = {lat:46.6055,lng:14.5665};
 
-        
-    
-            var tile_layer_68591aacc5dda073e8c8f5ff710f500a = L.tileLayer(
-                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                {
-  "minZoom": 0,
-  "maxZoom": 19,
-  "maxNativeZoom": 19,
-  "noWrap": false,
-  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
-  "subdomains": "abc",
-  "detectRetina": false,
-  "tms": false,
-  "opacity": 1,
-}
-
-            );
-        
-    
-            tile_layer_68591aacc5dda073e8c8f5ff710f500a.addTo(map_12b109c2e0ab217f3a0997622f11be5f);
-        
-    
-            var marker_4c3e90b7c247fcdb5c868e8647622848 = L.marker(
-                [46.6055, 14.5665],
-                {
-}
-            ).addTo(map_12b109c2e0ab217f3a0997622f11be5f);
-        
-    
-            var icon_5eb93f90bfaf5b10aa9899f8b025c029 = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "red",
-  "iconColor": "white",
-  "icon": "home",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_66cfb8d59ba048418eccd3fd4c3f9cc8 = L.popup({
-  "maxWidth": "100%",
+const map = new google.maps.Map(document.getElementById("map"),{
+zoom:10,
+center:szallas
 });
 
-        
-            
-                var html_2445dfc60cfbe528be12fe24965aebfb = $(`<div id="html_2445dfc60cfbe528be12fe24965aebfb" style="width: 100.0%; height: 100.0%;">Szállás (Airbnb) – Obernarrach környéke</div>`)[0];
-                popup_66cfb8d59ba048418eccd3fd4c3f9cc8.setContent(html_2445dfc60cfbe528be12fe24965aebfb);
-            
-        
+const places = [
 
-        marker_4c3e90b7c247fcdb5c868e8647622848.bindPopup(popup_66cfb8d59ba048418eccd3fd4c3f9cc8)
-        ;
+{
+name:"Szállás (Airbnb)",
+pos:{lat:46.6055,lng:14.5665},
+desc:"Airbnb Obernarrach",
+link:"https://maps.google.com/?q=46.6055,14.5665",
+color:"red"
+},
 
-        
-    
-    
-            marker_4c3e90b7c247fcdb5c868e8647622848.bindTooltip(
-                `<div>
-                     Szállás
-                 </div>`,
-                {
-  "sticky": true,
+{
+name:"Turnersee",
+pos:{lat:46.606,lng:14.575},
+desc:"Meleg alpesi fürdőtó",
+link:"https://maps.google.com/?q=Turnersee",
+color:"blue"
+},
+
+{
+name:"Klopeiner See",
+pos:{lat:46.608,lng:14.588},
+desc:"Karintia egyik legmelegebb tava",
+link:"https://maps.google.com/?q=Klopeiner+See",
+color:"blue"
+},
+
+{
+name:"Wörthersee",
+pos:{lat:46.63,lng:14.14},
+desc:"Híres karintiai tó",
+link:"https://maps.google.com/?q=Wörthersee",
+color:"blue"
+},
+
+{
+name:"Vogelpark Turnersee",
+pos:{lat:46.6065,lng:14.566},
+desc:"Madárpark állatsimogatóval",
+link:"https://maps.google.com/?q=Vogelpark+Turnersee",
+color:"orange"
+},
+
+{
+name:"Walderlebniswelt",
+pos:{lat:46.611,lng:14.595},
+desc:"Erdős kalandpark gyerekeknek",
+link:"https://maps.google.com/?q=Walderlebniswelt",
+color:"orange"
+},
+
+{
+name:"Tierpark Rosegg",
+pos:{lat:46.586,lng:14.019},
+desc:"Állatpark kastélyparkkal",
+link:"https://maps.google.com/?q=Tierpark+Rosegg",
+color:"orange"
+},
+
+{
+name:"Tscheppaschlucht",
+pos:{lat:46.458,lng:14.263},
+desc:"Szurdoktúra vízesésekkel",
+link:"https://maps.google.com/?q=Tscheppaschlucht",
+color:"green"
+},
+
+{
+name:"Petzen Mountain",
+pos:{lat:46.514,lng:14.787},
+desc:"Hegyi túrák és panoráma",
+link:"https://maps.google.com/?q=Petzen",
+color:"green"
+},
+
+{
+name:"Sablatnigmoor",
+pos:{lat:46.602,lng:14.56},
+desc:"Természetvédelmi terület",
+link:"https://maps.google.com/?q=Sablatnigmoor",
+color:"green"
+},
+
+{
+name:"Burg Hochosterwitz",
+pos:{lat:46.761,lng:14.429},
+desc:"Ikonikus középkori vár",
+link:"https://maps.google.com/?q=Burg+Hochosterwitz",
+color:"purple"
+},
+
+{
+name:"Pyramidenkogel Tower",
+pos:{lat:46.593,lng:14.143},
+desc:"Európa legmagasabb fa kilátója",
+link:"https://maps.google.com/?q=Pyramidenkogel",
+color:"purple"
+},
+
+{
+name:"SPAR St Kanzian",
+pos:{lat:46.6078,lng:14.5856},
+desc:"Szupermarket",
+link:"https://maps.google.com/?q=SPAR+St+Kanzian",
+color:"cyan"
+},
+
+{
+name:"BILLA St Kanzian",
+pos:{lat:46.6069,lng:14.5868},
+desc:"Szupermarket",
+link:"https://maps.google.com/?q=BILLA+St+Kanzian",
+color:"cyan"
+},
+
+{
+name:"HOFER Völkermarkt",
+pos:{lat:46.6625,lng:14.634},
+desc:"Diszkont bolt",
+link:"https://maps.google.com/?q=HOFER+Völkermarkt",
+color:"cyan"
+},
+
+{
+name:"Dego Restaurant",
+pos:{lat:46.6087,lng:14.5875},
+desc:"Tóparti étterem",
+link:"https://maps.google.com/?q=Dego+Restaurant+Klopeiner+See",
+color:"black"
 }
-            );
-        
-    
-                marker_4c3e90b7c247fcdb5c868e8647622848.setIcon(icon_5eb93f90bfaf5b10aa9899f8b025c029);
-            
-    
-            var marker_cac304245fe4495dff5a8d9350cccd15 = L.marker(
-                [46.606, 14.575],
-                {
-}
-            ).addTo(map_12b109c2e0ab217f3a0997622f11be5f);
-        
-    
-            var icon_691e330c43ba533f85caad13720f48db = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "blue",
-  "iconColor": "white",
-  "icon": "info-sign",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_5a3d0031e1a8c13e643464b839434f07 = L.popup({
-  "maxWidth": "100%",
+
+];
+
+places.forEach(place=>{
+
+const marker = new google.maps.Marker({
+position:place.pos,
+map:map,
+title:place.name,
+icon:`http://maps.google.com/mapfiles/ms/icons/${place.color}-dot.png`
 });
 
-        
-            
-                var html_da15d6a18b399c26b1fc2f63235f0d64 = $(`<div id="html_da15d6a18b399c26b1fc2f63235f0d64" style="width: 100.0%; height: 100.0%;"><b>Turnersee</b><br>Meleg alpesi tó sekély parttal, családbarát strand.<br>Kategória: Lakes</div>`)[0];
-                popup_5a3d0031e1a8c13e643464b839434f07.setContent(html_da15d6a18b399c26b1fc2f63235f0d64);
-            
-        
-
-        marker_cac304245fe4495dff5a8d9350cccd15.bindPopup(popup_5a3d0031e1a8c13e643464b839434f07)
-        ;
-
-        
-    
-    
-            marker_cac304245fe4495dff5a8d9350cccd15.bindTooltip(
-                `<div>
-                     Turnersee
-                 </div>`,
-                {
-  "sticky": true,
-}
-            );
-        
-    
-                marker_cac304245fe4495dff5a8d9350cccd15.setIcon(icon_691e330c43ba533f85caad13720f48db);
-            
-    
-            var marker_c06dd14dc97a021dc0980b14ea3ecb8a = L.marker(
-                [46.608, 14.588],
-                {
-}
-            ).addTo(map_12b109c2e0ab217f3a0997622f11be5f);
-        
-    
-            var icon_060e68711de5dabec3f9ccef4ae6d546 = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "blue",
-  "iconColor": "white",
-  "icon": "info-sign",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_5504e388373eee17faee60f3bb8312f3 = L.popup({
-  "maxWidth": "100%",
+const info = new google.maps.InfoWindow({
+content:`
+<h3>${place.name}</h3>
+<p>${place.desc}</p>
+<a href="${place.link}" target="_blank">Megnyitás Google Mapsben</a>
+`
 });
 
-        
-            
-                var html_6a72069f6d12576e4c86d91c1aa2532b = $(`<div id="html_6a72069f6d12576e4c86d91c1aa2532b" style="width: 100.0%; height: 100.0%;"><b>Klopeiner See</b><br>Karintia egyik legmelegebb tava, sétány és strandok.<br>Kategória: Lakes</div>`)[0];
-                popup_5504e388373eee17faee60f3bb8312f3.setContent(html_6a72069f6d12576e4c86d91c1aa2532b);
-            
-        
-
-        marker_c06dd14dc97a021dc0980b14ea3ecb8a.bindPopup(popup_5504e388373eee17faee60f3bb8312f3)
-        ;
-
-        
-    
-    
-            marker_c06dd14dc97a021dc0980b14ea3ecb8a.bindTooltip(
-                `<div>
-                     Klopeiner See
-                 </div>`,
-                {
-  "sticky": true,
-}
-            );
-        
-    
-                marker_c06dd14dc97a021dc0980b14ea3ecb8a.setIcon(icon_060e68711de5dabec3f9ccef4ae6d546);
-            
-    
-            var marker_603102f8be10c026481f93ab604939bb = L.marker(
-                [46.63, 14.14],
-                {
-}
-            ).addTo(map_12b109c2e0ab217f3a0997622f11be5f);
-        
-    
-            var icon_9a6c58d3b126aaf6371acbe17fd631e5 = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "blue",
-  "iconColor": "white",
-  "icon": "info-sign",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_6c97528948f72f8db105a4afbd428a83 = L.popup({
-  "maxWidth": "100%",
+marker.addListener("click",()=>{
+info.open(map,marker);
 });
 
-        
-            
-                var html_1626e1017a21fe1721f0ab883874f12b = $(`<div id="html_1626e1017a21fe1721f0ab883874f12b" style="width: 100.0%; height: 100.0%;"><b>Wörthersee</b><br>Híres karintiai tó hajózással és strandokkal.<br>Kategória: Lakes</div>`)[0];
-                popup_6c97528948f72f8db105a4afbd428a83.setContent(html_1626e1017a21fe1721f0ab883874f12b);
-            
-        
-
-        marker_603102f8be10c026481f93ab604939bb.bindPopup(popup_6c97528948f72f8db105a4afbd428a83)
-        ;
-
-        
-    
-    
-            marker_603102f8be10c026481f93ab604939bb.bindTooltip(
-                `<div>
-                     Wörthersee
-                 </div>`,
-                {
-  "sticky": true,
-}
-            );
-        
-    
-                marker_603102f8be10c026481f93ab604939bb.setIcon(icon_9a6c58d3b126aaf6371acbe17fd631e5);
-            
-    
-            var marker_3eab8615a7a8f7e5f4b9e3f6ba540ab8 = L.marker(
-                [46.6065, 14.566],
-                {
-}
-            ).addTo(map_12b109c2e0ab217f3a0997622f11be5f);
-        
-    
-            var icon_1c33bf5f0b5c2af0afefe65f686619ba = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "orange",
-  "iconColor": "white",
-  "icon": "info-sign",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_ae8382c84910d86da572cb5eda18d6ff = L.popup({
-  "maxWidth": "100%",
 });
 
-        
-            
-                var html_b8ac674e8421d2e60bfe20cf4dcde8b5 = $(`<div id="html_b8ac674e8421d2e60bfe20cf4dcde8b5" style="width: 100.0%; height: 100.0%;"><b>Vogelpark Turnersee</b><br>Nagy madárpark állatsimogatóval és játszótérrel.<br>Kategória: Kids</div>`)[0];
-                popup_ae8382c84910d86da572cb5eda18d6ff.setContent(html_b8ac674e8421d2e60bfe20cf4dcde8b5);
-            
-        
+const legend = document.createElement("div");
+legend.className="legend";
 
-        marker_3eab8615a7a8f7e5f4b9e3f6ba540ab8.bindPopup(popup_ae8382c84910d86da572cb5eda18d6ff)
-        ;
+legend.innerHTML=`
+<b>Jelmagyarázat</b><br>
+🔴 Szállás<br>
+🔵 Tavak / strandok<br>
+🟢 Túrák / természet<br>
+🟠 Gyerekprogramok<br>
+🟣 Látnivalók<br>
+🟦 Bevásárlás<br>
+⚫ Étterem
+`;
 
-        
-    
-    
-            marker_3eab8615a7a8f7e5f4b9e3f6ba540ab8.bindTooltip(
-                `<div>
-                     Vogelpark Turnersee
-                 </div>`,
-                {
-  "sticky": true,
+map.controls[google.maps.ControlPosition.RIGHT_TOP].push(legend);
+
 }
-            );
-        
-    
-                marker_3eab8615a7a8f7e5f4b9e3f6ba540ab8.setIcon(icon_1c33bf5f0b5c2af0afefe65f686619ba);
-            
-    
-            var marker_9e5aba3ce723599ec05cfe4e8a08bd53 = L.marker(
-                [46.611, 14.595],
-                {
-}
-            ).addTo(map_12b109c2e0ab217f3a0997622f11be5f);
-        
-    
-            var icon_918e03ce0171ea51ea2c46c730e2e718 = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "orange",
-  "iconColor": "white",
-  "icon": "info-sign",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_7d4dcc3de708f5d157c46972e43d8cd4 = L.popup({
-  "maxWidth": "100%",
-});
 
-        
-            
-                var html_591b8a2d70698bb5980de3439621915f = $(`<div id="html_591b8a2d70698bb5980de3439621915f" style="width: 100.0%; height: 100.0%;"><b>Walderlebniswelt Klopeiner See</b><br>Erdőben épített kalandpark csúszdákkal és mászókkal.<br>Kategória: Kids</div>`)[0];
-                popup_7d4dcc3de708f5d157c46972e43d8cd4.setContent(html_591b8a2d70698bb5980de3439621915f);
-            
-        
-
-        marker_9e5aba3ce723599ec05cfe4e8a08bd53.bindPopup(popup_7d4dcc3de708f5d157c46972e43d8cd4)
-        ;
-
-        
-    
-    
-            marker_9e5aba3ce723599ec05cfe4e8a08bd53.bindTooltip(
-                `<div>
-                     Walderlebniswelt Klopeiner See
-                 </div>`,
-                {
-  "sticky": true,
-}
-            );
-        
-    
-                marker_9e5aba3ce723599ec05cfe4e8a08bd53.setIcon(icon_918e03ce0171ea51ea2c46c730e2e718);
-            
-    
-            var marker_a631f46faf8505e7957a34940210f01c = L.marker(
-                [46.586, 14.019],
-                {
-}
-            ).addTo(map_12b109c2e0ab217f3a0997622f11be5f);
-        
-    
-            var icon_dc8c630151a5f420433616d2c2852418 = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "orange",
-  "iconColor": "white",
-  "icon": "info-sign",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_6dff04ffafa0b9b0d455c01fcbe02f44 = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_920c09b47d335f4fcbb59db511dc94f2 = $(`<div id="html_920c09b47d335f4fcbb59db511dc94f2" style="width: 100.0%; height: 100.0%;"><b>Tierpark Rosegg</b><br>Állatpark szarvasokkal, kecskékkel és kastélyparkkal.<br>Kategória: Kids</div>`)[0];
-                popup_6dff04ffafa0b9b0d455c01fcbe02f44.setContent(html_920c09b47d335f4fcbb59db511dc94f2);
-            
-        
-
-        marker_a631f46faf8505e7957a34940210f01c.bindPopup(popup_6dff04ffafa0b9b0d455c01fcbe02f44)
-        ;
-
-        
-    
-    
-            marker_a631f46faf8505e7957a34940210f01c.bindTooltip(
-                `<div>
-                     Tierpark Rosegg
-                 </div>`,
-                {
-  "sticky": true,
-}
-            );
-        
-    
-                marker_a631f46faf8505e7957a34940210f01c.setIcon(icon_dc8c630151a5f420433616d2c2852418);
-            
-    
-            var marker_5f61e64b6a674dea179d8fc95a58c650 = L.marker(
-                [46.458, 14.263],
-                {
-}
-            ).addTo(map_12b109c2e0ab217f3a0997622f11be5f);
-        
-    
-            var icon_9a7c57b58bc57669d7cdf52f4d5da71e = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "green",
-  "iconColor": "white",
-  "icon": "info-sign",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_6fe04b49ffcd93653dc260c61835ba7e = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_2540832995cc50fd11ad1c619272b73a = $(`<div id="html_2540832995cc50fd11ad1c619272b73a" style="width: 100.0%; height: 100.0%;"><b>Tscheppaschlucht Gorge</b><br>Látványos szurdok hidakkal és vízesésekkel.<br>Kategória: Nature</div>`)[0];
-                popup_6fe04b49ffcd93653dc260c61835ba7e.setContent(html_2540832995cc50fd11ad1c619272b73a);
-            
-        
-
-        marker_5f61e64b6a674dea179d8fc95a58c650.bindPopup(popup_6fe04b49ffcd93653dc260c61835ba7e)
-        ;
-
-        
-    
-    
-            marker_5f61e64b6a674dea179d8fc95a58c650.bindTooltip(
-                `<div>
-                     Tscheppaschlucht Gorge
-                 </div>`,
-                {
-  "sticky": true,
-}
-            );
-        
-    
-                marker_5f61e64b6a674dea179d8fc95a58c650.setIcon(icon_9a7c57b58bc57669d7cdf52f4d5da71e);
-            
-    
-            var marker_9b1a81c61449bf0a018b4cf2a798739e = L.marker(
-                [46.514, 14.787],
-                {
-}
-            ).addTo(map_12b109c2e0ab217f3a0997622f11be5f);
-        
-    
-            var icon_cbc3bf6d9d11e0167f22302ed8cd8fb2 = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "green",
-  "iconColor": "white",
-  "icon": "info-sign",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_f8f32de3422106f89088ad1cf7ea32f3 = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_bc5d4801db10efcb4abf9edb800ea998 = $(`<div id="html_bc5d4801db10efcb4abf9edb800ea998" style="width: 100.0%; height: 100.0%;"><b>Petzen Mountain</b><br>Felvonóval elérhető hegy túrákkal és panorámával.<br>Kategória: Nature</div>`)[0];
-                popup_f8f32de3422106f89088ad1cf7ea32f3.setContent(html_bc5d4801db10efcb4abf9edb800ea998);
-            
-        
-
-        marker_9b1a81c61449bf0a018b4cf2a798739e.bindPopup(popup_f8f32de3422106f89088ad1cf7ea32f3)
-        ;
-
-        
-    
-    
-            marker_9b1a81c61449bf0a018b4cf2a798739e.bindTooltip(
-                `<div>
-                     Petzen Mountain
-                 </div>`,
-                {
-  "sticky": true,
-}
-            );
-        
-    
-                marker_9b1a81c61449bf0a018b4cf2a798739e.setIcon(icon_cbc3bf6d9d11e0167f22302ed8cd8fb2);
-            
-    
-            var marker_f0739b05b8422515b3aed35a30d4375d = L.marker(
-                [46.602, 14.56],
-                {
-}
-            ).addTo(map_12b109c2e0ab217f3a0997622f11be5f);
-        
-    
-            var icon_4048fa7f5e96e5d5a42d5f5551e041c3 = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "green",
-  "iconColor": "white",
-  "icon": "info-sign",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_157f5b196eebf4eeadc244076f36b1ef = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_34809a79e56187e953032c4aea942e0f = $(`<div id="html_34809a79e56187e953032c4aea942e0f" style="width: 100.0%; height: 100.0%;"><b>Sablatnigmoor Nature Reserve</b><br>Madármegfigyelő mocsárvidék pallós sétákkal.<br>Kategória: Nature</div>`)[0];
-                popup_157f5b196eebf4eeadc244076f36b1ef.setContent(html_34809a79e56187e953032c4aea942e0f);
-            
-        
-
-        marker_f0739b05b8422515b3aed35a30d4375d.bindPopup(popup_157f5b196eebf4eeadc244076f36b1ef)
-        ;
-
-        
-    
-    
-            marker_f0739b05b8422515b3aed35a30d4375d.bindTooltip(
-                `<div>
-                     Sablatnigmoor Nature Reserve
-                 </div>`,
-                {
-  "sticky": true,
-}
-            );
-        
-    
-                marker_f0739b05b8422515b3aed35a30d4375d.setIcon(icon_4048fa7f5e96e5d5a42d5f5551e041c3);
-            
-    
-            var marker_a147b3cee8988765692dd09065c0b229 = L.marker(
-                [46.761, 14.429],
-                {
-}
-            ).addTo(map_12b109c2e0ab217f3a0997622f11be5f);
-        
-    
-            var icon_46bd0c58ade7900c12a7e5d829e685b8 = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "purple",
-  "iconColor": "white",
-  "icon": "info-sign",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_dd889a0793ae7f057c2ffb71738042ce = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_589a58a9481d40a9d0e8f6a4046e884b = $(`<div id="html_589a58a9481d40a9d0e8f6a4046e884b" style="width: 100.0%; height: 100.0%;"><b>Burg Hochosterwitz</b><br>Ikonikus középkori vár 14 kapuval.<br>Kategória: Sight</div>`)[0];
-                popup_dd889a0793ae7f057c2ffb71738042ce.setContent(html_589a58a9481d40a9d0e8f6a4046e884b);
-            
-        
-
-        marker_a147b3cee8988765692dd09065c0b229.bindPopup(popup_dd889a0793ae7f057c2ffb71738042ce)
-        ;
-
-        
-    
-    
-            marker_a147b3cee8988765692dd09065c0b229.bindTooltip(
-                `<div>
-                     Burg Hochosterwitz
-                 </div>`,
-                {
-  "sticky": true,
-}
-            );
-        
-    
-                marker_a147b3cee8988765692dd09065c0b229.setIcon(icon_46bd0c58ade7900c12a7e5d829e685b8);
-            
-    
-            var marker_bfae1f5c1145c4ec33dd227bbb7641f1 = L.marker(
-                [46.593, 14.143],
-                {
-}
-            ).addTo(map_12b109c2e0ab217f3a0997622f11be5f);
-        
-    
-            var icon_276f66132852984d34edde39defb6e8c = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "purple",
-  "iconColor": "white",
-  "icon": "info-sign",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_31b373bb953e54b797ba94182378b4e5 = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_e0310b235bde7c0a58551708474b4189 = $(`<div id="html_e0310b235bde7c0a58551708474b4189" style="width: 100.0%; height: 100.0%;"><b>Pyramidenkogel Tower</b><br>Európa legmagasabb fa kilátótornya csúszdával.<br>Kategória: Sight</div>`)[0];
-                popup_31b373bb953e54b797ba94182378b4e5.setContent(html_e0310b235bde7c0a58551708474b4189);
-            
-        
-
-        marker_bfae1f5c1145c4ec33dd227bbb7641f1.bindPopup(popup_31b373bb953e54b797ba94182378b4e5)
-        ;
-
-        
-    
-    
-            marker_bfae1f5c1145c4ec33dd227bbb7641f1.bindTooltip(
-                `<div>
-                     Pyramidenkogel Tower
-                 </div>`,
-                {
-  "sticky": true,
-}
-            );
-        
-    
-                marker_bfae1f5c1145c4ec33dd227bbb7641f1.setIcon(icon_276f66132852984d34edde39defb6e8c);
-            
-    
-            var marker_12ef6d384f42c9ae4073d9d2bc8b511a = L.marker(
-                [46.6078, 14.5856],
-                {
-}
-            ).addTo(map_12b109c2e0ab217f3a0997622f11be5f);
-        
-    
-            var icon_c79b1a260ece2ac462dd96c02fb9ac18 = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "cadetblue",
-  "iconColor": "white",
-  "icon": "info-sign",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_bbd2ed63eaf02bbc0adfd5b39ea5334d = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_8c6c7640e883c91e5fd14e6abda8a657 = $(`<div id="html_8c6c7640e883c91e5fd14e6abda8a657" style="width: 100.0%; height: 100.0%;"><b>SPAR St. Kanzian</b><br>Szupermarket friss pékáruval és teljes választékkal.<br>Kategória: Shopping</div>`)[0];
-                popup_bbd2ed63eaf02bbc0adfd5b39ea5334d.setContent(html_8c6c7640e883c91e5fd14e6abda8a657);
-            
-        
-
-        marker_12ef6d384f42c9ae4073d9d2bc8b511a.bindPopup(popup_bbd2ed63eaf02bbc0adfd5b39ea5334d)
-        ;
-
-        
-    
-    
-            marker_12ef6d384f42c9ae4073d9d2bc8b511a.bindTooltip(
-                `<div>
-                     SPAR St. Kanzian
-                 </div>`,
-                {
-  "sticky": true,
-}
-            );
-        
-    
-                marker_12ef6d384f42c9ae4073d9d2bc8b511a.setIcon(icon_c79b1a260ece2ac462dd96c02fb9ac18);
-            
-    
-            var marker_b11b2f5e500a8bdd2b1e3e51e840fde8 = L.marker(
-                [46.6069, 14.5868],
-                {
-}
-            ).addTo(map_12b109c2e0ab217f3a0997622f11be5f);
-        
-    
-            var icon_922b241fb1220eed6155dfc4516c31cf = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "cadetblue",
-  "iconColor": "white",
-  "icon": "info-sign",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_382dc337035edd158f7e6aeadf329df3 = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_24b4001e820aeb19cb56a1a070b071a0 = $(`<div id="html_24b4001e820aeb19cb56a1a070b071a0" style="width: 100.0%; height: 100.0%;"><b>BILLA St. Kanzian</b><br>Nagy szupermarket, jó készételekkel.<br>Kategória: Shopping</div>`)[0];
-                popup_382dc337035edd158f7e6aeadf329df3.setContent(html_24b4001e820aeb19cb56a1a070b071a0);
-            
-        
-
-        marker_b11b2f5e500a8bdd2b1e3e51e840fde8.bindPopup(popup_382dc337035edd158f7e6aeadf329df3)
-        ;
-
-        
-    
-    
-            marker_b11b2f5e500a8bdd2b1e3e51e840fde8.bindTooltip(
-                `<div>
-                     BILLA St. Kanzian
-                 </div>`,
-                {
-  "sticky": true,
-}
-            );
-        
-    
-                marker_b11b2f5e500a8bdd2b1e3e51e840fde8.setIcon(icon_922b241fb1220eed6155dfc4516c31cf);
-            
-    
-            var marker_8630059e8451a493075ce33da5fbefea = L.marker(
-                [46.6625, 14.634],
-                {
-}
-            ).addTo(map_12b109c2e0ab217f3a0997622f11be5f);
-        
-    
-            var icon_d205f301845933ba67337a3b73f95a65 = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "cadetblue",
-  "iconColor": "white",
-  "icon": "info-sign",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_9302829d22e9b017517c48da7fea6a64 = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_f11825f7a789d235752e986dcd3463ee = $(`<div id="html_f11825f7a789d235752e986dcd3463ee" style="width: 100.0%; height: 100.0%;"><b>HOFER Völkermarkt</b><br>Aldi jellegű diszkont, olcsó bevásárlás.<br>Kategória: Shopping</div>`)[0];
-                popup_9302829d22e9b017517c48da7fea6a64.setContent(html_f11825f7a789d235752e986dcd3463ee);
-            
-        
-
-        marker_8630059e8451a493075ce33da5fbefea.bindPopup(popup_9302829d22e9b017517c48da7fea6a64)
-        ;
-
-        
-    
-    
-            marker_8630059e8451a493075ce33da5fbefea.bindTooltip(
-                `<div>
-                     HOFER Völkermarkt
-                 </div>`,
-                {
-  "sticky": true,
-}
-            );
-        
-    
-                marker_8630059e8451a493075ce33da5fbefea.setIcon(icon_d205f301845933ba67337a3b73f95a65);
-            
-    
-            var marker_1c2c9745e01ffc93cea55408ba65c70f = L.marker(
-                [46.6087, 14.5875],
-                {
-}
-            ).addTo(map_12b109c2e0ab217f3a0997622f11be5f);
-        
-    
-            var icon_29e5701ceecb981fd25ad8e5938ae533 = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "black",
-  "iconColor": "white",
-  "icon": "info-sign",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_dafcc6b02ff98aa476c58104d61c7f95 = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_35d64339d668ae65da3334b4ebed3ec8 = $(`<div id="html_35d64339d668ae65da3334b4ebed3ec8" style="width: 100.0%; height: 100.0%;"><b>Dego Restaurant Klopeiner See</b><br>Népszerű tóparti étterem pizzával és gyerekbarát menüvel.<br>Kategória: Food</div>`)[0];
-                popup_dafcc6b02ff98aa476c58104d61c7f95.setContent(html_35d64339d668ae65da3334b4ebed3ec8);
-            
-        
-
-        marker_1c2c9745e01ffc93cea55408ba65c70f.bindPopup(popup_dafcc6b02ff98aa476c58104d61c7f95)
-        ;
-
-        
-    
-    
-            marker_1c2c9745e01ffc93cea55408ba65c70f.bindTooltip(
-                `<div>
-                     Dego Restaurant Klopeiner See
-                 </div>`,
-                {
-  "sticky": true,
-}
-            );
-        
-    
-                marker_1c2c9745e01ffc93cea55408ba65c70f.setIcon(icon_29e5701ceecb981fd25ad8e5938ae533);
-            
-    
-            var marker_a7a0e1dff38932c0008a392b53cf8bff = L.marker(
-                [46.6093, 14.5887],
-                {
-}
-            ).addTo(map_12b109c2e0ab217f3a0997622f11be5f);
-        
-    
-            var icon_5a0b50c98c58c3933500aed5b690cbdf = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "black",
-  "iconColor": "white",
-  "icon": "info-sign",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_b1b7f41228a2e02701984198d153c95d = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_f835eaa89aadb3c32546c5380c94f8d9 = $(`<div id="html_f835eaa89aadb3c32546c5380c94f8d9" style="width: 100.0%; height: 100.0%;"><b>Seerestaurant Princes</b><br>Tóparti étterem szép kilátással.<br>Kategória: Food</div>`)[0];
-                popup_b1b7f41228a2e02701984198d153c95d.setContent(html_f835eaa89aadb3c32546c5380c94f8d9);
-            
-        
-
-        marker_a7a0e1dff38932c0008a392b53cf8bff.bindPopup(popup_b1b7f41228a2e02701984198d153c95d)
-        ;
-
-        
-    
-    
-            marker_a7a0e1dff38932c0008a392b53cf8bff.bindTooltip(
-                `<div>
-                     Seerestaurant Princes
-                 </div>`,
-                {
-  "sticky": true,
-}
-            );
-        
-    
-                marker_a7a0e1dff38932c0008a392b53cf8bff.setIcon(icon_5a0b50c98c58c3933500aed5b690cbdf);
-            
 </script>
+
+<script async defer
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCt2VxrOb9zLBKkBSZu4SFAnn_0XoYDT60&callback=initMap">
+</script>
+
+</body>
 </html>
