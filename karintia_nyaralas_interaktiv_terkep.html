@@ -2,26 +2,43 @@
 <html lang="hu">
 <head>
 <meta charset="utf-8">
-<title>Karintia családi térkép - Fix</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Karintia családi térkép</title>
 
 <style>
-/* Teljes képernyős elrendezés */
+/* Alap elrendezés */
 html, body {
   height: 100%;
   margin: 0;
   display: flex;
   font-family: 'Segoe UI', Arial, sans-serif;
+  overflow: hidden;
 }
 
-/* Bal oldali lista */
+/* Oldalsáv (Sidebar) */
 #sidebar {
   width: 320px;
   height: 100%;
   overflow-y: auto;
-  background: #ffffff;
+  background: white;
   border-right: 1px solid #ddd;
-  display: flex;
-  flex-direction: column;
+  transition: transform 0.3s ease;
+  z-index: 1000;
+  position: relative;
+}
+
+/* Mobil nézet: elrejtjük az oldalsávot */
+@media (max-width: 768px) {
+  #sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translateX(-100%);
+    width: 280px;
+  }
+  #sidebar.open {
+    transform: translateX(0);
+  }
 }
 
 #sidebar h2 {
@@ -30,60 +47,56 @@ html, body {
   background: #2c3e50;
   color: white;
   font-size: 1.1rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
-.poi-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+/* Hamburger Menü Gomb */
+#menu-toggle {
+  display: none;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1100;
+  background: white;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  cursor: pointer;
+  font-size: 20px;
 }
 
+@media (max-width: 768px) {
+  #menu-toggle { display: block; }
+}
+
+/* Lista stílusok */
+.poi-list { list-style: none; padding: 0; margin: 0; }
 .poi-item {
   padding: 15px 20px;
   border-bottom: 1px solid #eee;
   cursor: pointer;
-  transition: all 0.2s;
 }
-
-.poi-item:hover {
-  background: #f0f7ff;
-}
-
-.poi-item h3 {
-  margin: 0 0 5px 0;
-  font-size: 0.95rem;
-  color: #007bff;
-}
-
-.poi-item p {
-  margin: 0;
-  font-size: 0.85rem;
-  color: #666;
-  line-height: 1.4;
-}
+.poi-item:hover { background: #f0f7ff; }
+.poi-item h3 { margin: 0 0 5px 0; font-size: 0.95rem; color: #007bff; }
+.poi-item p { margin: 0; font-size: 0.8rem; color: #666; }
 
 /* Térkép */
 #map {
   flex-grow: 1;
   height: 100%;
-  background-color: #e5e3df; /* Tartalék szín, amíg tölt a térkép */
 }
 
 .legend {
-  background: white;
-  padding: 12px;
-  margin: 10px;
-  font-size: 13px;
-  border-radius: 4px;
+  background: white; padding: 10px; margin: 10px;
+  font-size: 13px; border-radius: 4px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  line-height: 1.6;
 }
 </style>
 </head>
 
 <body>
+
+<button id="menu-toggle">☰</button>
 
 <div id="sidebar">
     <h2>📍 Látnivalók</h2>
@@ -93,91 +106,72 @@ html, body {
 <div id="map"></div>
 
 <script>
-function initMap() {
-    const szallasPos = {lat: 46.6055, lng: 14.5665};
+// A POI adatok
+const places = [
+    { name: "Szállás (Airbnb)", pos: {lat: 46.6055, lng: 14.5665}, desc: "Airbnb Obernarrach", color: "red" },
+    { name: "Turnersee", pos: {lat: 46.606, lng: 14.575}, desc: "Meleg alpesi fürdőtó", color: "blue" },
+    { name: "Klopeiner See", pos: {lat: 46.608, lng: 14.588}, desc: "Karintia egyik legmelegebb tava", color: "blue" },
+    { name: "Wörthersee", pos: {lat: 46.63, lng: 14.14}, desc: "Híres karintiai tó", color: "blue" },
+    { name: "Vogelpark Turnersee", pos: {lat: 46.6065, lng: 14.566}, desc: "Madárpark állatsimogatóval", color: "orange" },
+    { name: "Walderlebniswelt", pos: {lat: 46.611, lng: 14.595}, desc: "Erdős kalandpark gyerekeknek", color: "orange" },
+    { name: "Tierpark Rosegg", pos: {lat: 46.586, lng: 14.019}, desc: "Állatpark kastélyparkkal", color: "orange" },
+    { name: "Tscheppaschlucht", pos: {lat: 46.458, lng: 14.263}, desc: "Szurdoktúra vízesésekkel", color: "green" },
+    { name: "Petzen Mountain", pos: {lat: 46.514, lng: 14.787}, desc: "Hegyi túrák és panoráma", color: "green" },
+    { name: "Sablatnigmoor", pos: {lat: 46.602, lng: 14.56}, desc: "Természetvédelmi terület", color: "green" },
+    { name: "Burg Hochosterwitz", pos: {lat: 46.761, lng: 14.429}, desc: "Ikonikus középkori vár", color: "purple" },
+    { name: "Pyramidenkogel Tower", pos: {lat: 46.593, lng: 14.143}, desc: "Európa legmagasabb fa kilátója", color: "purple" },
+    { name: "SPAR St Kanzian", pos: {lat: 46.6078, lng: 14.5856}, desc: "Szupermarket", color: "lightblue" },
+    { name: "BILLA St Kanzian", pos: {lat: 46.6069, lng: 14.5868}, desc: "Szupermarket", color: "lightblue" },
+    { name: "HOFER Völkermarkt", pos: {lat: 46.6625, lng: 14.634}, desc: "Diszkont bolt", color: "lightblue" },
+    { name: "Dego Restaurant", pos: {lat: 46.6087, lng: 14.5875}, desc: "Tóparti étterem", color: "black" },
+    { name: "Minimundus", pos: {lat: 46.6247, lng: 14.2653}, desc: "Miniatűr park 150+ híres épülettel.", color: "orange" },
+    { name: "Reptilienzoo Happ", pos: {lat: 46.6238, lng: 14.2643}, desc: "Hüllő zoo kígyókkal, gyíkokkal.", color: "orange" },
+    { name: "Petzen Sommer Rodelbahn", pos: {lat: 46.515, lng: 14.789}, desc: "Nyári bobpálya a Petzen hegyen.", color: "orange" },
+    { name: "Wildensteiner Wasserfall", pos: {lat: 46.509, lng: 14.553}, desc: "Karintia egyik legmagasabb vízesése.", color: "green" }
+];
 
+function initMap() {
     const map = new google.maps.Map(document.getElementById("map"), {
         zoom: 10,
-        center: szallasPos,
-        mapTypeControl: true,
-        streetViewControl: false,
+        center: {lat: 46.6055, lng: 14.5665},
+        mapTypeControl: false,
         fullscreenControl: false
     });
 
-    const places = [
-        { name: "Szállás (Airbnb)", pos: {lat: 46.6055, lng: 14.5665}, desc: "Airbnb Obernarrach", color: "red" },
-        { name: "Turnersee", pos: {lat: 46.606, lng: 14.575}, desc: "Meleg alpesi fürdőtó", color: "blue" },
-        { name: "Klopeiner See", pos: {lat: 46.608, lng: 14.588}, desc: "Karintia egyik legmelegebb tava", color: "blue" },
-        { name: "Wörthersee", pos: {lat: 46.63, lng: 14.14}, desc: "Híres karintiai tó", color: "blue" },
-        { name: "Vogelpark Turnersee", pos: {lat: 46.6065, lng: 14.566}, desc: "Madárpark állatsimogatóval", color: "orange" },
-        { name: "Walderlebniswelt", pos: {lat: 46.611, lng: 14.595}, desc: "Erdős kalandpark gyerekeknek", color: "orange" },
-        { name: "Tierpark Rosegg", pos: {lat: 46.586, lng: 14.019}, desc: "Állatpark kastélyparkkal", color: "orange" },
-        { name: "Tscheppaschlucht", pos: {lat: 46.458, lng: 14.263}, desc: "Szurdoktúra vízesésekkel", color: "green" },
-        { name: "Petzen Mountain", pos: {lat: 46.514, lng: 14.787}, desc: "Hegyi túrák és panoráma", color: "green" },
-        { name: "Sablatnigmoor", pos: {lat: 46.602, lng: 14.56}, desc: "Természetvédelmi terület", color: "green" },
-        { name: "Burg Hochosterwitz", pos: {lat: 46.761, lng: 14.429}, desc: "Ikonikus középkori vár", color: "purple" },
-        { name: "Pyramidenkogel Tower", pos: {lat: 46.593, lng: 14.143}, desc: "Európa legmagasabb fa kilátója", color: "purple" },
-        { name: "SPAR St Kanzian", pos: {lat: 46.6078, lng: 14.5856}, desc: "Szupermarket", color: "lightblue" },
-        { name: "BILLA St Kanzian", pos: {lat: 46.6069, lng: 14.5868}, desc: "Szupermarket", color: "lightblue" },
-        { name: "HOFER Völkermarkt", pos: {lat: 46.6625, lng: 14.634}, desc: "Diszkont bolt", color: "lightblue" },
-        { name: "Dego Restaurant", pos: {lat: 46.6087, lng: 14.5875}, desc: "Tóparti étterem", color: "black" },
-        { name: "Minimundus", pos: {lat: 46.6247, lng: 14.2653}, desc: "Miniatűr park 150+ híres épülettel.", color: "orange" },
-        { name: "Reptilienzoo Happ", pos: {lat: 46.6238, lng: 14.2643}, desc: "Hüllő zoo kígyókkal, gyíkokkal.", color: "orange" },
-        { name: "Petzen Sommer Rodelbahn", pos: {lat: 46.515, lng: 14.789}, desc: "Nyári bobpálya a Petzen hegyen.", color: "orange" },
-        { name: "Wildensteiner Wasserfall", pos: {lat: 46.509, lng: 14.553}, desc: "Karintia egyik legmagasabb vízesése.", color: "green" }
-    ];
-
-    const poiListElement = document.getElementById('poi-list');
     const infoWindow = new google.maps.InfoWindow();
+    const poiList = document.getElementById('poi-list');
+    const sidebar = document.getElementById('sidebar');
 
     places.forEach(place => {
-        // Stabilabb marker ikon URL (Google Maps alapértelmezett színei)
-        let markerColor = place.color;
-        if(markerColor === 'lightblue') markerColor = 'ltblue'; // API korrekció
-
+        const color = place.color === 'lightblue' ? 'ltblue' : place.color;
         const marker = new google.maps.Marker({
             position: place.pos,
             map: map,
-            title: place.name,
-            icon: `https://maps.google.com/mapfiles/ms/icons/${markerColor}-dot.png`
+            icon: `https://maps.google.com/mapfiles/ms/icons/${color}-dot.png`
         });
 
-        // Lista elem
         const li = document.createElement('li');
         li.className = 'poi-item';
         li.innerHTML = `<h3>${place.name}</h3><p>${place.desc}</p>`;
         
-        const selectPlace = () => {
+        const action = () => {
             map.panTo(place.pos);
-            map.setZoom(14);
-            infoWindow.setContent(`<div style="padding:5px"><strong>${place.name}</strong><br>${place.desc}</div>`);
+            map.setZoom(13);
+            infoWindow.setContent(`<strong>${place.name}</strong><br>${place.desc}`);
             infoWindow.open(map, marker);
+            // Mobilon csukja be a menüt kattintás után
+            if (window.innerWidth <= 768) sidebar.classList.remove('open');
         };
 
-        li.addEventListener('click', selectPlace);
-        marker.addListener('click', selectPlace);
-        poiListElement.appendChild(li);
+        li.addEventListener('click', action);
+        marker.addListener('click', action);
+        poiList.appendChild(li);
     });
 
-    // Jelmagyarázat
-    const legend = document.createElement("div");
-    legend.className = "legend";
-    legend.innerHTML = `
-        <strong>Jelmagyarázat</strong><br>
-        🔴 Szállás<br>
-        🔵 Tavak / strandok<br>
-        🟢 Túrák / természet<br>
-        🟠 Gyerekprogramok<br>
-        🟣 Látnivalók<br>
-        🩵 Bevásárlás<br>
-        ⚫ Étterem
-    `;
-    map.controls[google.maps.ControlPosition.RIGHT_TOP].push(legend);
-}
-
-// Hibaellenőrzés, ha nem töltene be a térkép
-function gm_authFailure() { 
-    alert("Google Maps hiba: Valószínűleg a Maps API kulcsod érvénytelen vagy korlátozva van.");
+    // Hamburger gomb működtetése
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+    });
 }
 </script>
 
